@@ -1,4 +1,6 @@
-import { AnimatedThemeToggler } from "../ui/animated-theme-toggler";
+import { MoonIcon, SunIcon, type Sun } from 'lucide-react';
+import { useTheme } from '../theme-provider';
+import { AnimatedThemeToggler } from '../ui/animated-theme-toggler';
 // import { Button } from "../ui/button";
 
 // const NAV_MENU_ITEMS = [
@@ -17,11 +19,13 @@ import { AnimatedThemeToggler } from "../ui/animated-theme-toggler";
 // ];
 
 export const Navabar = () => {
-	return (
-		<header className="px-8">
-			<div className="h-16 flex items-center justify-between font-extrabold">
-				<p>MELLOWCODER</p>
-				{/* <nav className="flex gap-4">
+  const { theme } = useTheme();
+
+  return (
+    <header className="px-8">
+      <div className="flex h-16 items-center justify-between font-extrabold">
+        <p>MELLOWCODER</p>
+        {/* <nav className="flex gap-4">
 					{NAV_MENU_ITEMS.map((item) => (
 						<Button asChild variant="ghost" size="sm">
 							<a key={item.label} href={item.href}>
@@ -30,8 +34,10 @@ export const Navabar = () => {
 						</Button>
 					))}
 				</nav> */}
-				<AnimatedThemeToggler className="cursor-pointer" />
-			</div>
-		</header>
-	);
+        <AnimatedThemeToggler className="cursor-pointer">
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        </AnimatedThemeToggler>
+      </div>
+    </header>
+  );
 };

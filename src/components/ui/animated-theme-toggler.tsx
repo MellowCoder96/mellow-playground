@@ -1,59 +1,70 @@
-'use client';
+"use client";
 
-import { Moon, SunDim } from 'lucide-react';
-import React, { useState, useRef } from 'react';
-import { flushSync } from 'react-dom';
-import { cn } from '@/lib/utils';
-import { useTheme } from '../theme-provider';
+import React, { useRef } from "react";
+import { flushSync } from "react-dom";
+import { cn } from "@/lib/utils";
+import { useTheme } from "../theme-provider";
 
 type AnimatedThemeTogglerProps = {
-  className?: string;
-  children?: React.ReactNode;
+	className?: string;
+	children?: React.ReactNode;
 };
 
 export const AnimatedThemeToggler = ({
-  className,
-  children,
+	className,
+	children,
 }: AnimatedThemeTogglerProps) => {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const theme = useTheme();
+	const buttonRef = useRef<HTMLButtonElement | null>(null);
+	const theme = useTheme();
 
-  const changeTheme = async () => {
-    if (!buttonRef.current) return;
+	const changeTheme = async () => {
+		if (!buttonRef.current) return;
 
-    await document.startViewTransition(() => {
-      flushSync(() => {
-        const dark = document.documentElement.classList.toggle('dark');
-        theme.setTheme(dark ? 'dark' : 'light');
-      });
-    }).ready;
+		if (document.startViewTransition) {
+			// View Transition API is supported
+			// Start the view transition
 
-    const { top, left, width, height } =
-      buttonRef.current.getBoundingClientRect();
-    const y = top + height / 2;
-    const x = left + width / 2;
+			await document.startViewTransition(() => {
+				flushSync(() => {
+					const dark = document.documentElement.classList.toggle("dark");
+					theme.setTheme(dark ? "dark" : "light");
+				});
+			}).ready;
 
-    const right = window.innerWidth - left;
-    const bottom = window.innerHeight - top;
-    const maxRad = Math.hypot(Math.max(left, right), Math.max(top, bottom));
+			const { top, left, width, height } =
+				buttonRef.current.getBoundingClientRect();
+			const y = top + height / 2;
+			const x = left + width / 2;
 
-    document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRad}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration: 700,
-        easing: 'ease-in-out',
-        pseudoElement: '::view-transition-new(root)',
-      }
-    );
-  };
-  return (
-    <button ref={buttonRef} onClick={changeTheme} className={cn(className)}>
-      {children}
-    </button>
-  );
+			const right = window.innerWidth - left;
+			const bottom = window.innerHeight - top;
+			const maxRad = Math.hypot(Math.max(left, right), Math.max(top, bottom));
+
+			document.documentElement.animate(
+				{
+					clipPath: [
+						`circle(0px at ${x}px ${y}px)`,
+						`circle(${maxRad}px at ${x}px ${y}px)`,
+					],
+				},
+				{
+					duration: 700,
+					easing: "ease-in-out",
+					pseudoElement: "::view-transition-new(root)",
+				},
+			);
+		} else {
+			// Fallback for browsers that do not support View Transition API
+			flushSync(() => {
+				const dark = document.documentElement.classList.toggle("dark");
+				theme.setTheme(dark ? "dark" : "light");
+			});
+			return;
+		}
+	};
+	return (
+		<button ref={buttonRef} onClick={changeTheme} className={cn(className)}>
+			{children}
+		</button>
+	);
 };
